@@ -1,0 +1,1925 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Script OCR System for Nepali ID Cards</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.6.1/mermaid.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/panzoom@9.4.3/dist/panzoom.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Canela:wght@300;400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .font-canela { font-family: 'Canela', serif; }
+        .font-inter { font-family: 'Inter', sans-serif; }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        
+        /* Mermaid chart styling */
+        .mermaid-container {
+            display: flex;
+            justify-content: center;
+            min-height: 300px;
+            max-height: 800px;
+            background: #ffffff;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            position: relative;
+            overflow: auto;
+        }
+
+        .mermaid-container .mermaid {
+            width: 100%;
+            max-width: 100%;
+            height: 100%;
+            cursor: grab;
+            transition: transform 0.3s ease;
+            transform-origin: center center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            touch-action: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        .mermaid-container .mermaid svg {
+            max-width: 100%;
+            height: 100%;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .mermaid-container .mermaid:active {
+            cursor: grabbing;
+        }
+
+        .mermaid-container.zoomed .mermaid {
+            height: 100%;
+            width: 100%;
+            cursor: grab;
+        }
+
+        .mermaid-controls {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            gap: 10px;
+            z-index: 20;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 8px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .mermaid-control-btn {
+            background: #ffffff;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #374151;
+            font-size: 14px;
+            min-width: 36px;
+            height: 36px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mermaid-control-btn:hover {
+            background: #f8fafc;
+            border-color: #3b82f6;
+            color: #3b82f6;
+            transform: translateY(-1px);
+        }
+
+        .mermaid-control-btn:active {
+            transform: scale(0.95);
+        }
+        
+        /* Responsive adjustments for mermaid controls */
+        @media (max-width: 1024px) {
+            .mermaid-control-btn:not(.reset-zoom) {
+                display: none;
+            }
+            .mermaid-controls {
+                top: auto;
+                bottom: 15px;
+                right: 15px;
+            }
+        }
+
+        /* Enhanced mermaid node styling for better contrast */
+        .mermaid .node rect {
+            fill: #f8fafc !important;
+            stroke: #334155 !important;
+            stroke-width: 2px !important;
+        }
+        
+        .mermaid .node circle {
+            fill: #fef3c7 !important;
+            stroke: #d97706 !important;
+            stroke-width: 2px !important;
+        }
+        
+        .mermaid .node ellipse {
+            fill: #dbeafe !important;
+            stroke: #2563eb !important;
+            stroke-width: 2px !important;
+        }
+        
+        .mermaid .node polygon {
+            fill: #f3e8ff !important;
+            stroke: #7c3aed !important;
+            stroke-width: 2px !important;
+        }
+        
+        .mermaid .node .label {
+            color: #1e293b !important;
+            font-weight: 600 !important;
+            font-size: 13px !important;
+            font-family: 'Inter', sans-serif !important;
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8) !important;
+        }
+        
+        .mermaid .edgePath .path {
+            stroke: #64748b !important;
+            stroke-width: 2px !important;
+            filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1)) !important;
+        }
+        
+        .mermaid .edgeLabel {
+            background-color: rgba(255, 255, 255, 0.95) !important;
+            color: #374151 !important;
+            font-weight: 600 !important;
+            font-family: 'Inter', sans-serif !important;
+            padding: 4px 8px !important;
+            border-radius: 6px !important;
+            border: 1px solid #e5e7eb !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                overflow-x: hidden;
+            }
+            .mermaid-container {
+                overflow-x: auto;
+                padding: 15px;
+            }
+            .mermaid-container .mermaid {
+                width: 1200px !important;
+                height: 800px !important;
+                cursor: grab;
+            }
+            .mermaid-container.zoomed .mermaid {
+                width: 100% !important;
+                height: 100% !important;
+            }
+        }
+
+        /* Responsive adjustments for small screens */
+        @media (max-width: 768px) {
+            .toc-sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                transform: none;
+                z-index: 20;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+        }
+
+        /* New responsive styles */
+        @media (max-width: 768px) {
+            .section-divider {
+                margin-left: 2rem;
+                margin-right: 2rem;
+            }
+        }
+
+        /* Add word-wrap to prevent overflow */
+        .font-canela, .font-inter {
+            word-wrap: break-word;
+        }
+    </style>
+  </head>
+
+  <body class="bg-gray-50 font-inter text-gray-900">
+    <!-- Fixed Table of Contents -->
+    <div class="toc-sidebar fixed left-0 top-0 h-full w-80 bg-white shadow-xl z-50 overflow-y-auto border-r border-gray-200 transform -translate-x-full md:translate-x-0 transition-transform duration-300">
+      <div class="p-6">
+        <h3 class="font-canela text-lg font-bold text-gray-900 mb-6">Table of Contents</h3>
+        <nav class="space-y-3">
+          <a href="#introduction" class="block text-sm text-gray-600 hover:text-indigo-600 transition-colors duration-200 py-1">Introduction</a>
+          <a href="#architecture" class="block text-sm text-gray-600 hover:text-indigo-600 transition-colors duration-200 py-1">System Architecture</a>
+          <a href="#tools" class="block text-sm text-gray-600 hover:text-indigo-600 transition-colors duration-200 py-1">Required Tools & Libraries</a>
+          <a href="#implementation" class="block text-sm text-gray-600 hover:text-indigo-600 transition-colors duration-200 py-1">Implementation Steps</a>
+          <a href="#algorithms" class="block text-sm text-gray-600 hover:text-indigo-600 transition-colors duration-200 py-1">Algorithms & Models</a>
+          <a href="#processing" class="block text-sm text-gray-600 hover:text-indigo-600 transition-colors duration-200 py-1">Processing Modes</a>
+          <a href="#deployment" class="block text-sm text-gray-600 hover:text-indigo-600 transition-colors duration-200 py-1">Deployment Platforms</a>
+          <a href="#handwritten" class="block text-sm text-gray-600 hover:text-indigo-600 transition-colors duration-200 py-1">Handwritten & Printed Text</a>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content md:ml-80">
+      <!-- Hero Section with Bento Grid -->
+      <section class="relative bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 text-white overflow-hidden">
+        <div class="absolute inset-0 bg-black/20"></div>
+
+        <div class="relative z-10 px-8 py-16">
+          <div class="max-w-7xl mx-auto">
+            <!-- Title Section -->
+            <div class="mb-12">
+              <h1 class="font-canela text-4xl sm:text-5xl md:text-7xl font-light leading-tight mb-6">
+                <span class="italic">Multi-Script</span>
+                <br>
+                <span class="font-bold">OCR System</span>
+                <br>
+                <span class="text-2xl sm:text-3xl md:text-4xl font-light text-blue-200">for Nepali ID Cards</span>
+              </h1>
+              <p class="text-xl text-blue-100 max-w-2xl leading-relaxed">
+                A comprehensive deep learning pipeline for extracting structured data from identity documents using YOLOv8, TrOCR, and advanced field extraction techniques.
+              </p>
+            </div>
+
+            <!-- Bento Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              <!-- Key Feature 1 -->
+              <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+                <div class="flex items-center mb-4">
+                  <i class="fas fa-eye text-2xl text-blue-300 mr-3"></i>
+                  <h3 class="font-semibold text-lg">Text Detection</h3>
+                </div>
+                <p class="text-sm text-blue-100">YOLOv8-based detection with 99%+ accuracy on Nepali citizenship cards</p>
+              </div>
+
+              <!-- Key Feature 2 -->
+              <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+                <div class="flex items-center mb-4">
+                  <i class="fas fa-language text-2xl text-green-300 mr-3"></i>
+                  <h3 class="font-semibold text-lg">Multi-Script OCR</h3>
+                </div>
+                <p class="text-sm text-blue-100">TrOCR and EasyOCR for Nepali (Devanagari) and English text recognition</p>
+              </div>
+
+              <!-- Key Feature 3 -->
+              <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+                <div class="flex items-center mb-4">
+                  <i class="fas fa-cogs text-2xl text-purple-300 mr-3"></i>
+                  <h3 class="font-semibold text-lg">Field Extraction</h3>
+                </div>
+                <p class="text-sm text-blue-100">Advanced structuring using LiLT, NER, and template matching</p>
+              </div>
+
+              <!-- Key Feature 4 -->
+              <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20 md:col-span-2 lg:col-span-2">
+                <div class="flex items-center mb-4">
+                  <i class="fas fa-mobile-alt text-2xl text-yellow-300 mr-3"></i>
+                  <h3 class="font-semibold text-lg">Flexible Deployment</h3>
+                </div>
+                <p class="text-sm text-blue-100">Web API, mobile apps, and desktop solutions with model optimization</p>
+              </div>
+
+              <!-- Key Feature 5 -->
+              <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+                <div class="flex items-center mb-4">
+                  <i class="fas fa-pen text-2xl text-red-300 mr-3"></i>
+                  <h3 class="font-semibold text-lg">Mixed Text Types</h3>
+                </div>
+                <p class="text-sm text-blue-100">Specialized preprocessing for both handwritten and printed text</p>
+              </div>
+
+              <!-- Key Feature 6 -->
+              <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+                <div class="flex items-center mb-4">
+                  <i class="fas fa-code text-2xl text-indigo-300 mr-3"></i>
+                  <h3 class="font-semibold text-lg">Python Stack</h3>
+                </div>
+                <p class="text-sm text-blue-100">PyTorch, TensorFlow, OpenCV, and Hugging Face Transformers</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Introduction -->
+      <section id="introduction" class="px-8 py-16 bg-white">
+        <div class="max-w-4xl mx-auto">
+          <h2 class="font-canela text-4xl font-bold text-gray-900 mb-8">Introduction</h2>
+          <div class="prose prose-lg max-w-none">
+            <p class="text-gray-700 leading-relaxed mb-6">
+              The development of an OCR system for Nepali identity documents represents a significant technological challenge requiring specialized deep learning approaches. Unlike standard OCR applications, Nepali ID cards present unique complexities due to their multilingual nature, combining both Nepali (Devanagari script) and English text in structured layouts.
+            </p>
+            <p class="text-gray-700 leading-relaxed mb-6">
+              This comprehensive system addresses these challenges through a modular pipeline architecture, leveraging state-of-the-art models including <strong>YOLOv8</strong> for text detection, <strong>TrOCR</strong> fine-tuned for Nepali script recognition, and advanced field extraction techniques using <strong>LiLT</strong> and template matching.
+            </p>
+            <div class="bg-gray-50 p-6 rounded-lg border-l-4 border-indigo-500">
+              <p class="text-gray-800 font-medium">
+                The system achieves remarkable accuracy, with YOLOv8 text detection reporting over <strong>99% mean average precision (mAP)</strong> on Nepali citizenship card fronts, while TrOCR models demonstrate superior performance in recognizing both printed and handwritten text.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="section-divider h-px bg-gray-200 mx-8"></div>
+
+      <!-- System Architecture -->
+      <section id="architecture" class="px-8 py-16 bg-gray-50">
+        <div class="max-w-6xl mx-auto">
+          <h2 class="font-canela text-4xl font-bold text-gray-900 mb-12">System Architecture & Workflow</h2>
+
+          <!-- Architecture Overview -->
+          <div class="mb-12">
+            <h3 class="font-canela text-2xl font-semibold text-gray-900 mb-6">High-Level System Architecture</h3>
+            <p class="text-gray-700 leading-relaxed mb-8">
+              The proposed system employs a modular pipeline architecture designed to process images of various Nepali identity documents and extract both Nepali and English text into structured JSON format. This design enables independent development, testing, and optimization of each component.
+            </p>
+
+            <!-- System Flow Chart -->
+            <div class="mermaid-container">
+              <div class="mermaid-controls">
+                <button class="mermaid-control-btn zoom-in" title="放大">
+                  <i class="fas fa-search-plus"></i>
+                </button>
+                <button class="mermaid-control-btn zoom-out" title="缩小">
+                  <i class="fas fa-search-minus"></i>
+                </button>
+                <button class="mermaid-control-btn reset-zoom" title="重置">
+                  <i class="fas fa-expand-arrows-alt"></i>
+                </button>
+                <button class="mermaid-control-btn fullscreen" title="全屏查看">
+                  <i class="fas fa-expand"></i>
+                </button>
+              </div>
+              <div class="mermaid">
+                flowchart TD
+                A["📷 Raw Image Input
+                <br />JPEG/PNG"] --> B["🔄 Image Ingestion
+                <br />Preprocessing"]
+                B --> C["🔍 Document Type Classification"]
+                C --> D["✂️ Preprocessing & Segmentation"]
+                D --> E["📍 Text Detection
+                <br />YOLOv8"]
+                E --> F["🔤 Text Recognition
+                <br />TrOCR/EasyOCR"]
+                F --> G["📊 Field Extraction
+                <br />Key-Value Pairs"]
+                G --> H["💾 JSON Output Generation"]
+
+                style A fill:#f8fafc,stroke:#334155,stroke-width:3px,color:#1e293b
+                style B fill:#dbeafe,stroke:#2563eb,stroke-width:3px,color:#1e293b
+                style C fill:#fef3c7,stroke:#d97706,stroke-width:3px,color:#1e293b
+                style D fill:#f3e8ff,stroke:#7c3aed,stroke-width:3px,color:#1e293b
+                style E fill:#dcfce7,stroke:#16a34a,stroke-width:3px,color:#1e293b
+                style F fill:#fff7ed,stroke:#ea580c,stroke-width:3px,color:#1e293b
+                style G fill:#f0f9ff,stroke:#0284c7,stroke-width:3px,color:#1e293b
+                style H fill:#f0fdf4,stroke:#15803d,stroke-width:3px,color:#1e293b
+              </div>
+            </div>
+          </div>
+
+          <!-- Component Breakdown -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="bg-white p-6 rounded-xl shadow-sm border">
+              <div class="flex items-center mb-4">
+                <i class="fas fa-image text-2xl text-blue-600 mr-3"></i>
+                <h4 class="font-semibold text-lg">Image Ingestion Module</h4>
+              </div>
+              <p class="text-gray-600 text-sm">Handles various image formats (JPEG, PNG) with initial quality checks, resizing, and noise reduction filters. Ensures standardized input quality.</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border">
+              <div class="flex items-center mb-4">
+                <i class="fas fa-id-card text-2xl text-green-600 mr-3"></i>
+                <h4 class="font-semibold text-lg">Document Classification</h4>
+              </div>
+              <p class="text-gray-600 text-sm">CNN-based model identifies document type (citizenship, passport, voting card) to apply appropriate extraction templates and rules.</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border">
+              <div class="flex items-center mb-4">
+                <i class="fas fa-search text-2xl text-purple-600 mr-3"></i>
+                <h4 class="font-semibold text-lg">Text Detection (YOLOv8)</h4>
+              </div>
+              <p class="text-gray-600 text-sm">State-of-the-art object detection locates text regions with 99%+ mAP accuracy on Nepali citizenship cards.</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border">
+              <div class="flex items-center mb-4">
+                <i class="fas fa-language text-2xl text-orange-600 mr-3"></i>
+                <h4 class="font-semibold text-lg">Text Recognition</h4>
+              </div>
+              <p class="text-gray-600 text-sm">TrOCR fine-tuned for Nepali script and EasyOCR for multilingual recognition of both handwritten and printed text.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="section-divider h-px bg-gray-200 mx-8"></div>
+
+      <!-- Tools and Libraries -->
+      <section id="tools" class="px-8 py-16 bg-white">
+        <div class="max-w-6xl mx-auto">
+          <h2 class="font-canela text-4xl font-bold text-gray-900 mb-12">Required Tools & Libraries</h2>
+
+          <!-- Core Programming Environment -->
+          <div class="mb-12">
+            <h3 class="font-canela text-2xl font-semibold text-gray-900 mb-6">Core Programming Environment</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="bg-gray-50 p-6 rounded-xl">
+                <div class="flex items-center mb-4">
+                  <i class="fab fa-python text-3xl text-blue-600 mr-4"></i>
+                  <h4 class="font-semibold text-lg">Python</h4>
+                </div>
+                <p class="text-gray-700 text-sm">Primary language chosen for extensive ML ecosystem, including OpenCV, TensorFlow, PyTorch, and Hugging Face Transformers.</p>
+              </div>
+              <div class="bg-gray-50 p-6 rounded-xl">
+                <div class="flex items-center mb-4">
+                  <i class="fas fa-code text-3xl text-green-600 mr-4"></i>
+                  <h4 class="font-semibold text-lg">Jupyter/Colab</h4>
+                </div>
+                <p class="text-gray-700 text-sm">Interactive development environments for prototyping, data analysis, and model experimentation with GPU access.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Deep Learning Frameworks -->
+          <div class="mb-12">
+            <h3 class="font-canela text-2xl font-semibold text-gray-900 mb-6">Deep Learning Frameworks</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="bg-gradient-to-br from-red-50 to-pink-50 p-6 rounded-xl border border-red-100">
+                <div class="flex items-center mb-4">
+                  <i class="fas fa-fire text-3xl text-red-600 mr-4"></i>
+                  <h4 class="font-semibold text-lg">PyTorch</h4>
+                </div>
+                <p class="text-gray-700 text-sm">Primary framework for TrOCR fine-tuning and Hugging Face Transformers integration. Known for dynamic computational graph and research flexibility.</p>
+              </div>
+              <div class="bg-gradient-to-br from-orange-50 to-yellow-50 p-6 rounded-xl border border-orange-100">
+                <div class="flex items-center mb-4">
+                  <i class="fas fa-brain text-3xl text-orange-600 mr-4"></i>
+                  <h4 class="font-semibold text-lg">TensorFlow</h4>
+                </div>
+                <p class="text-gray-700 text-sm">Used for YOLOv8 training and deployment optimization. Offers TensorFlow Lite for mobile deployment and production serving capabilities.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- OCR-Specific Libraries -->
+          <div class="mb-12">
+            <h3 class="font-canela text-2xl font-semibold text-gray-900 mb-6">OCR-Specific Libraries</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div class="bg-white p-6 rounded-xl shadow-sm border">
+                <div class="flex items-center mb-4">
+                  <i class="fas fa-robot text-2xl text-indigo-600 mr-3"></i>
+                  <h4 class="font-semibold">Hugging Face</h4>
+                </div>
+                <p class="text-gray-600 text-sm">Access to pre-trained TrOCR models including
+                  <code class="bg-gray-100 px-1 rounded">rockerritesh/trOCR_ne</code> for Nepali text recognition.
+                </p>
+              </div>
+              <div class="bg-white p-6 rounded-xl shadow-sm border">
+                <div class="flex items-center mb-4">
+                  <i class="fas fa-cube text-2xl text-blue-600 mr-3"></i>
+                  <h4 class="font-semibold">Ultralytics YOLOv8</h4>
+                </div>
+                <p class="text-gray-600 text-sm">State-of-the-art object detection with easy-to-use interface for text region localization.</p>
+              </div>
+              <div class="bg-white p-6 rounded-xl shadow-sm border">
+                <div class="flex items-center mb-4">
+                  <i class="fas fa-eye text-2xl text-green-600 mr-3"></i>
+                  <h4 class="font-semibold">Tesseract OCR</h4>
+                </div>
+                <p class="text-gray-600 text-sm">Mature OCR engine with extensive language support and optimization capabilities for specific use cases.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Computer Vision Tools -->
+          <div>
+            <h3 class="font-canela text-2xl font-semibold text-gray-900 mb-6">Computer Vision & Utilities</h3>
+            <div class="bg-gray-50 p-8 rounded-xl">
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div class="text-center">
+                  <i class="fas fa-camera text-4xl text-purple-600 mb-3"></i>
+                  <h4 class="font-semibold mb-2">OpenCV</h4>
+                  <p class="text-gray-600 text-sm">Image preprocessing and manipulation</p>
+                </div>
+                <div class="text-center">
+                  <i class="fas fa-image text-4xl text-pink-600 mb-3"></i>
+                  <h4 class="font-semibold mb-2">Pillow</h4>
+                  <p class="text-gray-600 text-sm">Image format handling and basic operations</p>
+                </div>
+                <div class="text-center">
+                  <i class="fas fa-calculator text-4xl text-blue-600 mb-3"></i>
+                  <h4 class="font-semibold mb-2">NumPy</h4>
+                  <p class="text-gray-600 text-sm">Numerical operations and array processing</p>
+                </div>
+                <div class="text-center">
+                  <i class="fas fa-table text-4xl text-green-600 mb-3"></i>
+                  <h4 class="font-semibold mb-2">Pandas</h4>
+                  <p class="text-gray-600 text-sm">Data manipulation and analysis</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="section-divider h-px bg-gray-200 mx-8"></div>
+
+      <!-- Implementation Steps -->
+      <section id="implementation" class="px-8 py-16 bg-gray-50">
+        <div class="max-w-6xl mx-auto">
+          <h2 class="font-canela text-4xl font-bold text-gray-900 mb-12">Project Implementation Steps</h2>
+
+          <!-- Phase 1: Data Collection -->
+          <div class="mb-12">
+            <div class="flex items-center mb-6">
+              <div class="bg-indigo-600 text-white rounded-full w-10 h-10 flex items-center justify-center mr-4">
+                <span class="font-bold">1</span>
+              </div>
+              <h3 class="font-canela text-2xl font-semibold text-gray-900">Data Collection & Preparation</h3>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div class="bg-white p-6 rounded-xl shadow-sm">
+                <h4 class="font-semibold text-lg mb-4 flex items-center">
+                  <i class="fas fa-database text-blue-600 mr-3"></i>
+                  Sourcing ID Card Images
+                </h4>
+                <p class="text-gray-700 text-sm mb-4">Collect diverse dataset encompassing various Nepali identity documents (citizenship cards, passports, voting cards) with varying quality, lighting conditions, and resolutions.</p>
+                <div class="bg-blue-50 p-3 rounded-lg">
+                  <p class="text-blue-800 text-xs font-medium">Sources: Public datasets, online repositories, manual collection</p>
+                </div>
+              </div>
+
+              <div class="bg-white p-6 rounded-xl shadow-sm">
+                <h4 class="font-semibold text-lg mb-4 flex items-center">
+                  <i class="fas fa-tags text-green-600 mr-3"></i>
+                  Data Annotation Process
+                </h4>
+                <p class="text-gray-700 text-sm mb-4">Multi-stage annotation for bounding boxes, text transcriptions, and key-value pairs using tools like LabelImg and CVAT.</p>
+                <div class="space-y-2 text-sm">
+                  <div class="flex items-center">
+                    <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                    <span>Bounding box annotation for text detection</span>
+                  </div>
+                  <div class="flex items-center">
+                    <div class="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
+                    <span>Text transcription for recognition training</span>
+                  </div>
+                  <div class="flex items-center">
+                    <div class="w-2 h-2 bg-purple-500 rounded-full mr-2"></div>
+                    <span>Key-value pair labeling for field extraction</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Phase 2: Model Training -->
+          <div class="mb-12">
+            <div class="flex items-center mb-6">
+              <div class="bg-green-600 text-white rounded-full w-10 h-10 flex items-center justify-center mr-4">
+                <span class="font-bold">2</span>
+              </div>
+              <h3 class="font-canela text-2xl font-semibold text-gray-900">Model Training Pipeline</h3>
+            </div>
+
+            <div class="space-y-6">
+              <!-- YOLOv8 Training -->
+              <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-blue-500">
+                <h4 class="font-semibold text-lg mb-3 flex items-center">
+                  <i class="fas fa-crosshairs text-blue-600 mr-3"></i>
+                  Text Detection Model (YOLOv8)
+                </h4>
+                <p class="text-gray-700 text-sm mb-4">Fine-tune pre-trained YOLOv8 model on custom ID card dataset with bounding box annotations. Monitor performance using mean average precision (mAP) metrics.</p>
+                <div class="bg-gray-50 p-3 rounded-lg">
+                  <div class="flex items-center justify-between text-sm">
+                    <span class="font-medium">Expected mAP:</span>
+                    <span class="text-blue-600 font-bold">99%+</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- TrOCR Fine-tuning -->
+              <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-green-500">
+                <h4 class="font-semibold text-lg mb-3 flex items-center">
+                  <i class="fas fa-language text-green-600 mr-3"></i>
+                  Text Recognition Fine-tuning
+                </h4>
+                <p class="text-gray-700 text-sm mb-4">Fine-tune TrOCR models on cropped text images with transcriptions, minimizing character error rate (CER) and word error rate (WER) for both Nepali and English text.</p>
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                  <div class="bg-gray-50 p-3 rounded">
+                    <div class="font-medium text-green-600 mb-1">Nepali Model</div>
+                    <div class="text-gray-600">rockerritesh/trOCR_ne</div>
+                  </div>
+                  <div class="bg-gray-50 p-3 rounded">
+                    <div class="font-medium text-green-600 mb-1">English Model</div>
+                    <div class="text-gray-600">trocr-base-printed</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Field Extraction -->
+              <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-purple-500">
+                <h4 class="font-semibold text-lg mb-3 flex items-center">
+                  <i class="fas fa-layer-group text-purple-600 mr-3"></i>
+                  Field Extraction Models
+                </h4>
+                <p class="text-gray-700 text-sm mb-4">Train layout-aware models (LiLT) and Named Entity Recognition (NER) systems like NepBERTa for key-value pair extraction from recognized text.</p>
+                <div class="bg-purple-50 p-3 rounded-lg">
+                  <p class="text-purple-800 text-xs font-medium">Reported F1 Score: 87%+ on scanned Nepali documents</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Phase 3: System Integration -->
+          <div>
+            <div class="flex items-center mb-6">
+              <div class="bg-purple-600 text-white rounded-full w-10 h-10 flex items-center justify-center mr-4">
+                <span class="font-bold">3</span>
+              </div>
+              <h3 class="font-canela text-2xl font-semibold text-gray-900">System Integration & Testing</h3>
+            </div>
+
+            <div class="bg-white p-8 rounded-xl shadow-sm">
+              <h4 class="font-semibold text-lg mb-6 flex items-center">
+                <i class="fas fa-cogs text-purple-600 mr-3"></i>
+                Pipeline Integration Process
+              </h4>
+
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="text-center">
+                  <div class="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-link text-2xl text-purple-600"></i>
+                  </div>
+                  <h5 class="font-semibold mb-2">Component Integration</h5>
+                  <p class="text-gray-600 text-sm">Connect detection, recognition, and extraction models into unified pipeline</p>
+                </div>
+
+                <div class="text-center">
+                  <div class="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-vial text-2xl text-blue-600"></i>
+                  </div>
+                  <h5 class="font-semibold mb-2">End-to-End Testing</h5>
+                  <p class="text-gray-600 text-sm">Validate complete pipeline with unseen ID card images</p>
+                </div>
+
+                <div class="text-center">
+                  <div class="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-chart-line text-2xl text-green-600"></i>
+                  </div>
+                  <h5 class="font-semibold mb-2">Performance Evaluation</h5>
+                  <p class="text-gray-600 text-sm">Assess accuracy, speed, and robustness across diverse test cases</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="section-divider h-px bg-gray-200 mx-8"></div>
+
+      <!-- Algorithms & Models -->
+      <section id="algorithms" class="px-8 py-16 bg-white">
+        <div class="max-w-6xl mx-auto">
+          <h2 class="font-canela text-4xl font-bold text-gray-900 mb-12">Algorithms & Models</h2>
+
+          <!-- Text Detection Models -->
+          <div class="mb-12">
+            <h3 class="font-canela text-2xl font-semibold text-gray-900 mb-8">Text Detection Algorithms</h3>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <!-- YOLOv8 -->
+              <div class="bg-gradient-to-br from-blue-50 to-indigo-50 p-8 rounded-xl border border-blue-200">
+                <div class="flex items-center mb-6">
+                  <div class="bg-blue-600 text-white rounded-full w-12 h-12 flex items-center justify-center mr-4">
+                    <i class="fas fa-crosshairs"></i>
+                  </div>
+                  <div>
+                    <h4 class="font-bold text-xl">YOLOv8</h4>
+                    <p class="text-blue-600 font-medium">Primary Choice</p>
+                  </div>
+                </div>
+
+                <div class="space-y-4">
+                  <div class="flex items-center justify-between">
+                    <span class="text-gray-700 font-medium">Speed</span>
+                    <div class="flex space-x-1">
+                      <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                      <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                      <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                      <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                      <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                    </div>
+                  </div>
+
+                  <div class="flex items-center justify-between">
+                    <span class="text-gray-700 font-medium">Accuracy</span>
+                    <div class="flex space-x-1">
+                      <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                      <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                      <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                      <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                      <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                    </div>
+                  </div>
+
+                  <div class="flex items-center justify-between">
+                    <span class="text-gray-700 font-medium">Ease of Use</span>
+                    <div class="flex space-x-1">
+                      <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                      <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                      <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                      <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                      <div class="w-3 h-3 bg-gray-300 rounded-full"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="mt-6 p-4 bg-white rounded-lg">
+                  <div class="flex items-center justify-between">
+                    <span class="text-gray-700 font-medium">Reported mAP</span>
+                    <span class="text-2xl font-bold text-blue-600">99%+</span>
+                  </div>
+                  <p class="text-xs text-gray-500 mt-1">On Nepali citizenship card fronts</p>
+                </div>
+              </div>
+
+              <!-- EAST -->
+              <div class="bg-gray-50 p-8 rounded-xl border">
+                <div class="flex items-center mb-6">
+                  <div class="bg-gray-600 text-white rounded-full w-12 h-12 flex items-center justify-center mr-4">
+                    <i class="fas fa-search"></i>
+                  </div>
+                  <div>
+                    <h4 class="font-bold text-xl">EAST</h4>
+                    <p class="text-gray-600 font-medium">Alternative Option</p>
+                  </div>
+                </div>
+
+                <div class="space-y-4">
+                  <div class="flex items-center justify-between">
+                    <span class="text-gray-700 font-medium">Speed</span>
+                    <div class="flex space-x-1">
+                      <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                      <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                      <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                      <div class="w-3 h-3 bg-gray-300 rounded-full"></div>
+                      <div class="w-3 h-3 bg-gray-300 rounded-full"></div>
+                    </div>
+                  </div>
+
+                  <div class="flex items-center justify-between">
+                    <span class="text-gray-700 font-medium">Accuracy</span>
+                    <div class="flex space-x-1">
+                      <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                      <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                      <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                      <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                      <div class="w-3 h-3 bg-gray-300 rounded-full"></div>
+                    </div>
+                  </div>
+
+                  <div class="flex items-center justify-between">
+                    <span class="text-gray-700 font-medium">Ease of Use</span>
+                    <div class="flex space-x-1">
+                      <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                      <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                      <div class="w-3 h-3 bg-gray-300 rounded-full"></div>
+                      <div class="w-3 h-3 bg-gray-300 rounded-full"></div>
+                      <div class="w-3 h-3 bg-gray-300 rounded-full"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="mt-6 p-4 bg-white rounded-lg">
+                  <p class="text-gray-600 text-sm">Strong alternative for handling text at arbitrary orientations, but slower than YOLOv8.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Text Recognition Models -->
+          <div class="mb-12">
+            <h3 class="font-canela text-2xl font-semibold text-gray-900 mb-8">Text Recognition Algorithms</h3>
+
+            <div class="space-y-8">
+              <!-- Model Comparison Table -->
+              <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
+                <div class="px-6 py-4 bg-gray-50 border-b">
+                  <h4 class="font-semibold text-lg">Model Comparison for Nepali and English Text</h4>
+                </div>
+                <div class="overflow-x-auto">
+                  <table class="w-full">
+                    <thead class="bg-gray-100">
+                      <tr>
+                        <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Feature</th>
+                        <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">TrOCR (Fine-tuned)</th>
+                        <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Tesseract OCR</th>
+                        <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">EasyOCR</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                      <tr>
+                        <td class="px-4 py-3 text-sm font-medium text-gray-900">Nepali (Devanagari) Support</td>
+                        <td class="px-4 py-3 text-sm">
+                          <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">Excellent</span>
+                        </td>
+                        <td class="px-4 py-3 text-sm">
+                          <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Good</span>
+                        </td>
+                        <td class="px-4 py-3 text-sm">
+                          <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">Good</span>
+                        </td>
+                      </tr>
+                      <tr class="bg-gray-50">
+                        <td class="px-4 py-3 text-sm font-medium text-gray-900">English (Latin) Support</td>
+                        <td class="px-4 py-3 text-sm">
+                          <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Unknown</span>
+                        </td>
+                        <td class="px-4 py-3 text-sm">
+                          <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">Excellent</span>
+                        </td>
+                        <td class="px-4 py-3 text-sm">
+                          <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">Excellent</span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="px-4 py-3 text-sm font-medium text-gray-900">Handwritten Text</td>
+                        <td class="px-4 py-3 text-sm">
+                          <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">Good</span>
+                        </td>
+                        <td class="px-4 py-3 text-sm">
+                          <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">Poor</span>
+                        </td>
+                        <td class="px-4 py-3 text-sm">
+                          <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">No</span>
+                        </td>
+                      </tr>
+                      <tr class="bg-gray-50">
+                        <td class="px-4 py-3 text-sm font-medium text-gray-900">Multilingual (Single Model)</td>
+                        <td class="px-4 py-3 text-sm">
+                          <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">No</span>
+                        </td>
+                        <td class="px-4 py-3 text-sm">
+                          <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">No</span>
+                        </td>
+                        <td class="px-4 py-3 text-sm">
+                          <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">Yes</span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="px-4 py-3 text-sm font-medium text-gray-900">Ease of Use</td>
+                        <td class="px-4 py-3 text-sm">
+                          <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Moderate</span>
+                        </td>
+                        <td class="px-4 py-3 text-sm">
+                          <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">High</span>
+                        </td>
+                        <td class="px-4 py-3 text-sm">
+                          <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">Very High</span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Recommendation -->
+              <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-200">
+                <h4 class="font-semibold text-lg mb-4 flex items-center">
+                  <i class="fas fa-lightbulb text-blue-600 mr-3"></i>
+                  Recommendation
+                </h4>
+                <p class="text-gray-700 mb-4">
+                  <strong>EasyOCR</strong> is recommended as the primary text recognition engine due to robust built-in multilingual support and proven ability to handle Devanagari script. <strong>TrOCR</strong> should be pursued as secondary high-accuracy option specifically for Nepali text fields.
+                </p>
+                <div class="bg-white p-4 rounded-lg">
+                  <div class="flex items-center justify-between text-sm">
+                    <span class="font-medium">Hybrid Approach Potential:</span>
+                    <span class="text-blue-600 font-bold">TrOCR (Nepali) + EasyOCR (English)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Field Extraction -->
+          <div>
+            <h3 class="font-canela text-2xl font-semibold text-gray-900 mb-8">Field Extraction & Structuring</h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <!-- Rule-Based -->
+              <div class="bg-white p-6 rounded-xl shadow-sm border">
+                <div class="flex items-center mb-4">
+                  <i class="fas fa-ruler text-2xl text-blue-600 mr-3"></i>
+                  <h4 class="font-semibold">Rule-Based</h4>
+                </div>
+                <p class="text-gray-600 text-sm mb-4">Template matching with predefined patterns and keyword identification</p>
+                <div class="bg-blue-50 p-3 rounded text-xs">
+                  <strong>Pros:</strong> Simple, high accuracy for standardized layouts
+                  <br>
+                  <strong>Cons:</strong> Limited flexibility for variations
+                </div>
+              </div>
+
+              <!-- NER -->
+              <div class="bg-white p-6 rounded-xl shadow-sm border">
+                <div class="flex items-center mb-4">
+                  <i class="fas fa-tags text-2xl text-green-600 mr-3"></i>
+                  <h4 class="font-semibold">Named Entity Recognition</h4>
+                </div>
+                <p class="text-gray-600 text-sm mb-4">NepBERTa-based entity classification for names, dates, and ID numbers</p>
+                <div class="bg-green-50 p-3 rounded text-xs">
+                  <strong>Pros:</strong> Layout-independent, semantic understanding
+                  <br>
+                  <strong>Cons:</strong> Requires training data for Nepali entities
+                </div>
+              </div>
+
+              <!-- Layout-Aware -->
+              <div class="bg-white p-6 rounded-xl shadow-sm border">
+                <div class="flex items-center mb-4">
+                  <i class="fas fa-layer-group text-2xl text-purple-600 mr-3"></i>
+                  <h4 class="font-semibold">Layout-Aware</h4>
+                </div>
+                <p class="text-gray-600 text-sm mb-4">LiLT models combining text and spatial relationships</p>
+                <div class="bg-purple-50 p-3 rounded text-xs">
+                  <strong>Pros:</strong> High accuracy, handles layout variations
+                  <br>
+                  <strong>Cons:</strong> More complex implementation
+                </div>
+              </div>
+
+              <!-- LLM-Based -->
+              <div class="bg-white p-6 rounded-xl shadow-sm border">
+                <div class="flex items-center mb-4">
+                  <i class="fas fa-brain text-2xl text-orange-600 mr-3"></i>
+                  <h4 class="font-semibold">LLM-Based</h4>
+                </div>
+                <p class="text-gray-600 text-sm mb-4">GPT-4o for flexible extraction with structured prompts</p>
+                <div class="bg-orange-50 p-3 rounded text-xs">
+                  <strong>Pros:</strong> Highly flexible, minimal training
+                  <br>
+                  <strong>Cons:</strong> Higher computational cost
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="section-divider h-px bg-gray-200 mx-8"></div>
+
+      <!-- Processing Modes -->
+      <section id="processing" class="px-8 py-16 bg-gray-50">
+        <div class="max-w-6xl mx-auto">
+          <h2 class="font-canela text-4xl font-bold text-gray-900 mb-12">Processing Mode Considerations</h2>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <!-- Real-Time Processing -->
+            <div class="bg-white p-8 rounded-xl shadow-sm">
+              <div class="flex items-center mb-6">
+                <div class="bg-green-100 text-green-600 rounded-full w-12 h-12 flex items-center justify-center mr-4">
+                  <i class="fas fa-bolt text-xl"></i>
+                </div>
+                <div>
+                  <h3 class="font-canela text-2xl font-semibold text-gray-900">Real-Time Processing</h3>
+                  <p class="text-gray-600">Optimized for speed and mobile deployment</p>
+                </div>
+              </div>
+
+              <div class="space-y-6">
+                <div>
+                  <h4 class="font-semibold text-lg mb-3">Optimization Techniques</h4>
+                  <div class="space-y-3">
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <span class="text-gray-700 font-medium">TensorRT/OpenVINO</span>
+                      <span class="text-green-600 font-bold">4x Faster</span>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <span class="text-gray-700 font-medium">Model Quantization</span>
+                      <span class="text-green-600 font-bold">INT8/FP16</span>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <span class="text-gray-700 font-medium">Lightweight Models</span>
+                      <span class="text-green-600 font-bold">YOLOv8n</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 class="font-semibold text-lg mb-3">Deployment Options</h4>
+                  <div class="space-y-3">
+                    <div class="flex items-center p-3 bg-green-50 rounded-lg">
+                      <i class="fas fa-mobile-alt text-green-600 mr-3"></i>
+                      <div>
+                        <div class="font-medium">Mobile Edge Computing</div>
+                        <div class="text-sm text-gray-600">TensorFlow Lite, ONNX Runtime</div>
+                      </div>
+                    </div>
+                    <div class="flex items-center p-3 bg-green-50 rounded-lg">
+                      <i class="fas fa-cloud text-green-600 mr-3"></i>
+                      <div>
+                        <div class="font-medium">Low-Latency API</div>
+                        <div class="text-sm text-gray-600">Optimized web service</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Batch Processing -->
+            <div class="bg-white p-8 rounded-xl shadow-sm">
+              <div class="flex items-center mb-6">
+                <div class="bg-blue-100 text-blue-600 rounded-full w-12 h-12 flex items-center justify-center mr-4">
+                  <i class="fas fa-database text-xl"></i>
+                </div>
+                <div>
+                  <h3 class="font-canela text-2xl font-semibold text-gray-900">Offline/Batch Processing</h3>
+                  <p class="text-gray-600">Optimized for accuracy and volume</p>
+                </div>
+              </div>
+
+              <div class="space-y-6">
+                <div>
+                  <h4 class="font-semibold text-lg mb-3">Enhanced Capabilities</h4>
+                  <div class="space-y-3">
+                    <div class="flex items-center p-3 bg-blue-50 rounded-lg">
+                      <i class="fas fa-layer-group text-blue-600 mr-3"></i>
+                      <div>
+                        <div class="font-medium">Complex Models</div>
+                        <div class="text-sm text-gray-600">YOLOv8x, Large TrOCR variants</div>
+                      </div>
+                    </div>
+                    <div class="flex items-center p-3 bg-blue-50 rounded-lg">
+                      <i class="fas fa-server text-blue-600 mr-3"></i>
+                      <div>
+                        <div class="font-medium">Parallel Processing</div>
+                        <div class="text-sm text-gray-600">Multi-GPU servers</div>
+                      </div>
+                    </div>
+                    <div class="flex items-center p-3 bg-blue-50 rounded-lg">
+                      <i class="fas fa-infinity text-blue-600 mr-3"></i>
+                      <div>
+                        <div class="font-medium">Cloud Pipelines</div>
+                        <div class="text-sm text-gray-600">Scalable processing</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 class="font-semibold text-lg mb-3">Use Cases</h4>
+                  <div class="space-y-2">
+                    <div class="flex items-center">
+                      <i class="fas fa-archive text-gray-400 mr-2"></i>
+                      <span class="text-sm text-gray-700">Archival document digitization</span>
+                    </div>
+                    <div class="flex items-center">
+                      <i class="fas fa-tasks text-gray-400 mr-2"></i>
+                      <span class="text-sm text-gray-700">Large-scale data entry</span>
+                    </div>
+                    <div class="flex items-center">
+                      <i class="fas fa-clock text-gray-400 mr-2"></i>
+                      <span class="text-sm text-gray-700">Non-time critical processing</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="section-divider h-px bg-gray-200 mx-8"></div>
+
+      <!-- Deployment Platforms -->
+      <section id="deployment" class="px-8 py-16 bg-white">
+        <div class="max-w-6xl mx-auto">
+          <h2 class="font-canela text-4xl font-bold text-gray-900 mb-12">Deployment Platforms & Model Optimization</h2>
+
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+            <!-- Web API -->
+            <div class="bg-gradient-to-br from-blue-50 to-indigo-50 p-8 rounded-xl border border-blue-200">
+              <div class="text-center mb-6">
+                <div class="bg-blue-600 text-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                  <i class="fas fa-globe text-2xl"></i>
+                </div>
+                <h3 class="font-canela text-2xl font-semibold text-gray-900">Web API</h3>
+              </div>
+
+              <div class="space-y-4">
+                <div>
+                  <h4 class="font-semibold mb-2">Framework Options</h4>
+                  <div class="space-y-2">
+                    <div class="flex items-center justify-between text-sm">
+                      <span>Flask/Django REST</span>
+                      <span class="text-green-600 font-medium">Recommended</span>
+                    </div>
+                    <div class="flex items-center justify-between text-sm">
+                      <span>FastAPI</span>
+                      <span class="text-blue-600 font-medium">Alternative</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 class="font-semibold mb-2">Deployment Platforms</h4>
+                  <div class="space-y-2 text-sm text-gray-600">
+                    <div class="flex items-center">
+                      <i class="fab fa-aws text-orange-500 mr-2"></i>
+                      <span>AWS (EC2, Lambda)</span>
+                    </div>
+                    <div class="flex items-center">
+                      <i class="fab fa-google text-blue-500 mr-2"></i>
+                      <span>Google Cloud Platform</span>
+                    </div>
+                    <div class="flex items-center">
+                      <i class="fab fa-microsoft text-blue-600 mr-2"></i>
+                      <span>Azure</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="bg-white p-4 rounded-lg">
+                  <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm font-medium">Scalability</span>
+                    <div class="flex space-x-1">
+                      <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                      <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                      <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                      <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                      <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                    </div>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium">Offline Capability</span>
+                    <div class="flex space-x-1">
+                      <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                      <div class="w-3 h-3 bg-gray-300 rounded-full"></div>
+                      <div class="w-3 h-3 bg-gray-300 rounded-full"></div>
+                      <div class="w-3 h-3 bg-gray-300 rounded-full"></div>
+                      <div class="w-3 h-3 bg-gray-300 rounded-full"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Mobile App -->
+            <div class="bg-gradient-to-br from-green-50 to-emerald-50 p-8 rounded-xl border border-green-200">
+              <div class="text-center mb-6">
+                <div class="bg-green-600 text-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                  <i class="fas fa-mobile-alt text-2xl"></i>
+                </div>
+                <h3 class="font-canela text-2xl font-semibold text-gray-900">Mobile Application</h3>
+              </div>
+
+              <div class="space-y-4">
+                <div>
+                  <h4 class="font-semibold mb-2">Development Frameworks</h4>
+                  <div class="space-y-2">
+                    <div class="flex items-center justify-between text-sm">
+                      <span>Flutter</span>
+                      <span class="text-green-600 font-medium">Cross-platform</span>
+                    </div>
+                    <div class="flex items-center justify-between text-sm">
+                      <span>React Native</span>
+                      <span class="text-blue-600 font-medium">Alternative</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 class="font-semibold mb-2">Inference Options</h4>
+                  <div class="space-y-2 text-sm text-gray-600">
+                    <div class="flex items-center">
+                      <i class="fas fa-cloud text-blue-500 mr-2"></i>
+                      <span>Cloud Processing</span>
+                    </div>
+                    <div class="flex items-center">
+                      <i class="fas fa-mobile text-green-500 mr-2"></i>
+                      <span>On-Device (TensorFlow Lite)</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="bg-white p-4 rounded-lg">
+                  <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm font-medium">Offline Capability</span>
+                    <div class="flex space-x-1">
+                      <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                      <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                      <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                      <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                      <div class="w-3 h-3 bg-gray-300 rounded-full"></div>
+                    </div>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium">Performance</span>
+                    <div class="flex space-x-1">
+                      <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                      <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                      <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                      <div class="w-3 h-3 bg-gray-300 rounded-full"></div>
+                      <div class="w-3 h-3 bg-gray-300 rounded-full"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Desktop App -->
+            <div class="bg-gradient-to-br from-purple-50 to-pink-50 p-8 rounded-xl border border-purple-200">
+              <div class="text-center mb-6">
+                <div class="bg-purple-600 text-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                  <i class="fas fa-desktop text-2xl"></i>
+                </div>
+                <h3 class="font-canela text-2xl font-semibold text-gray-900">Desktop Application</h3>
+              </div>
+
+              <div class="space-y-4">
+                <div>
+                  <h4 class="font-semibold mb-2">Development Options</h4>
+                  <div class="space-y-2">
+                    <div class="flex items-center justify-between text-sm">
+                      <span>Electron</span>
+                      <span class="text-purple-600 font-medium">Cross-platform</span>
+                    </div>
+                    <div class="flex items-center justify-between text-sm">
+                      <span>PyQt</span>
+                      <span class="text-blue-600 font-medium">Python-native</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 class="font-semibold mb-2">Key Advantages</h4>
+                  <div class="space-y-2 text-sm text-gray-600">
+                    <div class="flex items-center">
+                      <i class="fas fa-tachometer-alt text-blue-500 mr-2"></i>
+                      <span>High Performance</span>
+                    </div>
+                    <div class="flex items-center">
+                      <i class="fas fa-wifi text-green-500 mr-2"></i>
+                      <span>Offline Capability</span>
+                    </div>
+                    <div class="flex items-center">
+                      <i class="fas fa-hdd text-purple-500 mr-2"></i>
+                      <span>Local Storage</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="bg-white p-4 rounded-lg">
+                  <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm font-medium">Performance</span>
+                    <div class="flex space-x-1">
+                      <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                      <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                      <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                      <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                      <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                    </div>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium">Distribution</span>
+                    <div class="flex space-x-1">
+                      <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                      <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                      <div class="w-3 h-3 bg-gray-300 rounded-full"></div>
+                      <div class="w-3 h-3 bg-gray-300 rounded-full"></div>
+                      <div class="w-3 h-3 bg-gray-300 rounded-full"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Model Optimization Techniques -->
+          <div class="bg-white p-8 rounded-xl shadow-sm">
+            <h3 class="font-canela text-2xl font-semibold text-gray-900 mb-8">Model Optimization Techniques</h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div class="text-center">
+                <div class="bg-gradient-to-br from-blue-100 to-indigo-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <i class="fas fa-compress-arrows-alt text-3xl text-blue-600"></i>
+                </div>
+                <h4 class="font-bold text-lg mb-3">Quantization</h4>
+                <p class="text-gray-600 text-sm mb-4">Convert FP32 to INT8/FP16 precision for 4x model size reduction and 2-4x inference speed improvement.</p>
+                <div class="bg-blue-50 p-3 rounded-lg">
+                  <div class="text-blue-800 font-bold text-lg">4x Smaller</div>
+                  <div class="text-blue-600 text-xs">Model Size Reduction</div>
+                </div>
+              </div>
+
+              <div class="text-center">
+                <div class="bg-gradient-to-br from-green-100 to-emerald-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <i class="fas fa-cut text-3xl text-green-600"></i>
+                </div>
+                <h4 class="font-bold text-lg mb-3">Pruning</h4>
+                <p class="text-gray-600 text-sm mb-4">Remove redundant connections and weights to reduce model complexity while maintaining accuracy.</p>
+                <div class="bg-green-50 p-3 rounded-lg">
+                  <div class="text-green-800 font-bold text-lg">2-3x Faster</div>
+                  <div class="text-green-600 text-xs">Inference Speed</div>
+                </div>
+              </div>
+
+              <div class="text-center">
+                <div class="bg-gradient-to-br from-purple-100 to-pink-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <i class="fas fa-feather-alt text-3xl text-purple-600"></i>
+                </div>
+                <h4 class="font-bold text-lg mb-3">Lightweight Frameworks</h4>
+                <p class="text-gray-600 text-sm mb-4">Use TensorFlow Lite and ONNX Runtime for optimized deployment on mobile and embedded devices.</p>
+                <div class="bg-purple-50 p-3 rounded-lg">
+                  <div class="text-purple-800 font-bold text-lg">Edge Ready</div>
+                  <div class="text-purple-600 text-xs">Mobile Deployment</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="section-divider h-px bg-gray-200 mx-8"></div>
+
+      <!-- Handwritten & Printed Text -->
+      <section id="handwritten" class="px-8 py-16 bg-gray-50">
+        <div class="max-w-6xl mx-auto">
+          <h2 class="font-canela text-4xl font-bold text-gray-900 mb-12">Support for Handwritten & Printed Text</h2>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-12">
+            <!-- Handwritten Text Challenges -->
+            <div class="bg-white p-8 rounded-xl shadow-sm">
+              <h3 class="font-canela text-2xl font-semibold text-gray-900 mb-6">Challenges with Handwritten Text</h3>
+
+              <div class="space-y-6">
+                <div>
+                  <h4 class="font-semibold text-lg mb-3 flex items-center">
+                    <i class="fas fa-pen-fancy text-purple-600 mr-3"></i>
+                    Variability in Styles
+                  </h4>
+                  <p class="text-gray-700 text-sm mb-4">Handwriting exhibits extreme variation in letter shapes, sizes, spacing, and slant, making consistent recognition difficult.</p>
+                  <div class="bg-purple-50 p-4 rounded-lg">
+                    <div class="flex items-center justify-between mb-2">
+                      <span class="text-purple-800 font-medium">Legibility Range</span>
+                      <span class="text-purple-600 font-bold">High Variation</span>
+                    </div>
+                    <div class="w-full bg-purple-200 rounded-full h-2">
+                      <div class="bg-purple-600 h-2 rounded-full" style="width: 85%"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 class="font-semibold text-lg mb-3 flex items-center">
+                    <i class="fas fa-adjust text-orange-600 mr-3"></i>
+                    Noise & Low Contrast
+                  </h4>
+                  <p class="text-gray-700 text-sm mb-4">Handwritten sections often suffer from faded ink, smudging, and poor contrast against textured backgrounds.</p>
+                  <div class="bg-orange-50 p-4 rounded-lg">
+                    <div class="flex items-center justify-between mb-2">
+                      <span class="text-orange-800 font-medium">Signal-to-Noise Ratio</span>
+                      <span class="text-orange-600 font-bold">Lower Quality</span>
+                    </div>
+                    <div class="w-full bg-orange-200 rounded-full h-2">
+                      <div class="bg-orange-600 h-2 rounded-full" style="width: 40%"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Solution Approaches -->
+            <div class="bg-white p-8 rounded-xl shadow-sm">
+              <h3 class="font-canela text-2xl font-semibold text-gray-900 mb-6">Solution Approaches</h3>
+
+              <div class="space-y-6">
+                <div>
+                  <h4 class="font-semibold text-lg mb-3 flex items-center">
+                    <i class="fas fa-robot text-blue-600 mr-3"></i>
+                    TrOCR Capabilities
+                  </h4>
+                  <p class="text-gray-700 text-sm mb-4">Transformer-based architecture excels at understanding contextual relationships, making it effective for both handwritten and printed text.</p>
+                  <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-blue-50 p-3 rounded-lg text-center">
+                      <div class="text-blue-600 font-bold text-lg">Excellent</div>
+                      <div class="text-blue-800 text-xs">Printed Text</div>
+                    </div>
+                    <div class="bg-blue-50 p-3 rounded-lg text-center">
+                      <div class="text-blue-600 font-bold text-lg">Good</div>
+                      <div class="text-blue-800 text-xs">Handwritten Text</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 class="font-semibold text-lg mb-3 flex items-center">
+                    <i class="fas fa-database text-green-600 mr-3"></i>
+                    Training Data Requirements
+                  </h4>
+                  <p class="text-gray-700 text-sm mb-4">Success requires diverse, representative handwriting samples from various individuals with different writing styles.</p>
+                  <div class="space-y-2 text-sm">
+                    <div class="flex items-center">
+                      <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                      <span>Wide demographic representation</span>
+                    </div>
+                    <div class="flex items-center">
+                      <div class="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
+                      <span>Varying legibility levels</span>
+                    </div>
+                    <div class="flex items-center">
+                      <div class="w-2 h-2 bg-purple-500 rounded-full mr-2"></div>
+                      <span>Context-appropriate content</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Preprocessing Pipeline -->
+          <div class="bg-white p-8 rounded-xl shadow-sm">
+            <h3 class="font-canela text-2xl font-semibold text-gray-900 mb-8">Handwritten Text Preprocessing Pipeline</h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <!-- Noise Reduction -->
+              <div class="text-center">
+                <div class="bg-gradient-to-br from-blue-100 to-indigo-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <i class="fas fa-filter text-3xl text-blue-600"></i>
+                </div>
+                <h4 class="font-bold text-lg mb-3">Noise Reduction</h4>
+                <p class="text-gray-600 text-sm mb-4">Gaussian blur and median filtering to remove artifacts and smooth images.</p>
+                <div class="bg-blue-50 p-3 rounded-lg">
+                  <div class="text-blue-800 font-bold text-sm">First Step</div>
+                  <div class="text-blue-600 text-xs">Remove Artifacts</div>
+                </div>
+              </div>
+
+              <!-- Binarization -->
+              <div class="text-center">
+                <div class="bg-gradient-to-br from-gray-100 to-slate-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <i class="fas fa-adjust text-3xl text-gray-600"></i>
+                </div>
+                <h4 class="font-bold text-lg mb-3">Binarization</h4>
+                <p class="text-gray-600 text-sm mb-4">Convert to black and white for enhanced text-background contrast.</p>
+                <div class="bg-gray-50 p-3 rounded-lg">
+                  <div class="text-gray-800 font-bold text-sm">Second Step</div>
+                  <div class="text-gray-600 text-xs">Enhance Contrast</div>
+                </div>
+              </div>
+
+              <!-- Skew Correction -->
+              <div class="text-center">
+                <div class="bg-gradient-to-br from-green-100 to-emerald-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <i class="fas fa-ruler-horizontal text-3xl text-green-600"></i>
+                </div>
+                <h4 class="font-bold text-lg mb-3">Skew Correction</h4>
+                <p class="text-gray-600 text-sm mb-4">Detect and correct text orientation for horizontal alignment.</p>
+                <div class="bg-green-50 p-3 rounded-lg">
+                  <div class="text-green-800 font-bold text-sm">Third Step</div>
+                  <div class="text-green-600 text-xs">Straighten Text</div>
+                </div>
+              </div>
+
+              <!-- Final Enhancement -->
+              <div class="text-center">
+                <div class="bg-gradient-to-br from-purple-100 to-pink-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <i class="fas fa-magic text-3xl text-purple-600"></i>
+                </div>
+                <h4 class="font-bold text-lg mb-3">Final Enhancement</h4>
+                <p class="text-gray-600 text-sm mb-4">Sharpening and contrast adjustment for optimal OCR input.</p>
+                <div class="bg-purple-50 p-3 rounded-lg">
+                  <div class="text-purple-800 font-bold text-sm">Final Step</div>
+                  <div class="text-purple-600 text-xs">Optimize Quality</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Pipeline Visualization -->
+            <div class="mt-12">
+              <div class="flex items-center justify-between">
+                <div class="flex-1">
+                  <div class="h-px bg-gray-300"></div>
+                </div>
+                <div class="px-4">
+                  <i class="fas fa-arrow-right text-gray-400"></i>
+                </div>
+                <div class="flex-1">
+                  <div class="h-px bg-gray-300"></div>
+                </div>
+                <div class="px-4">
+                  <i class="fas fa-arrow-right text-gray-400"></i>
+                </div>
+                <div class="flex-1">
+                  <div class="h-px bg-gray-300"></div>
+                </div>
+                <div class="px-4">
+                  <i class="fas fa-arrow-right text-gray-400"></i>
+                </div>
+                <div class="flex-1">
+                  <div class="h-px bg-gray-300"></div>
+                </div>
+              </div>
+              <div class="text-center mt-6">
+                <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg inline-block">
+                  <i class="fas fa-check-circle mr-2"></i>
+                  <span class="font-semibold">Optimized Handwritten Text Ready for OCR</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Footer with Citation -->
+      <footer class="px-8 py-12 bg-gray-900 text-white">
+        <div class="max-w-4xl mx-auto text-center">
+          <p class="text-gray-400 mb-4">
+            This comprehensive OCR system design leverages cutting-edge deep learning techniques for multi-script text recognition, with particular focus on Nepali identity documents.
+          </p>
+          <div class="flex flex-wrap justify-center gap-4 text-sm text-gray-500">
+            <span>References: [468] ACL Anthology - Nepali Document Processing</span>
+            <span>•</span>
+            <span>[494] Mero Nagarikta Research</span>
+            <span>•</span>
+            <span>[505] Deep Learning OCR Systems</span>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'base',
+            securityLevel: 'loose',
+            themeVariables: {
+                primaryColor: '#f8fafc',
+                primaryTextColor: '#1e293b',
+                primaryBorderColor: '#334155',
+                lineColor: '#64748b',
+                background: '#ffffff',
+                secondaryColor: '#f1f5f9',
+                tertiaryColor: '#e2e8f0',
+                // Enhanced contrast colors for different node types
+                cScale0: '#f8fafc',
+                cScale1: '#fef3c7', 
+                cScale2: '#dbeafe',
+                cScale3: '#f3e8ff',
+                cScale4: '#dcfce7',
+                cScale5: '#fff7ed',
+                cScale6: '#f0f9ff',
+                cScale7: '#f0fdf4',
+                // Text colors for better contrast
+                labelTextColor: '#1e293b',
+                titleColor: '#1e293b',
+                edgeLabelBackground: '#ffffff',
+                // Border colors with good contrast
+                cScale0Border: '#334155',
+                cScale1Border: '#d97706',
+                cScale2Border: '#2563eb',
+                cScale3Border: '#7c3aed',
+                cScale4Border: '#16a34a',
+                cScale5Border: '#ea580c',
+                cScale6Border: '#0284c7',
+                cScale7Border: '#15803d'
+            },
+            flowchart: {
+                useMaxWidth: false,
+                htmlLabels: true,
+                curve: 'basis',
+                padding: 20,
+                nodeSpacing: 50,
+                rankSpacing: 80
+            },
+            fontFamily: 'Inter, sans-serif',
+            fontSize: 14
+        });
+
+        // Initialize Mermaid Controls for zoom and pan
+        function initializeMermaidControls() {
+            const containers = document.querySelectorAll('.mermaid-container');
+
+            containers.forEach(container => {
+            const mermaidElement = container.querySelector('.mermaid');
+            let scale = 1;
+            let isDragging = false;
+            let startX, startY, translateX = 0, translateY = 0;
+
+            // 触摸相关状态
+            let isTouch = false;
+            let touchStartTime = 0;
+            let initialDistance = 0;
+            let initialScale = 1;
+            let isPinching = false;
+
+            // Zoom controls
+            const zoomInBtn = container.querySelector('.zoom-in');
+            const zoomOutBtn = container.querySelector('.zoom-out');
+            const resetBtn = container.querySelector('.reset-zoom');
+            const fullscreenBtn = container.querySelector('.fullscreen');
+
+            function updateTransform() {
+                mermaidElement.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+
+                if (scale > 1) {
+                container.classList.add('zoomed');
+                } else {
+                container.classList.remove('zoomed');
+                }
+
+                mermaidElement.style.cursor = isDragging ? 'grabbing' : 'grab';
+            }
+
+            if (zoomInBtn) {
+                zoomInBtn.addEventListener('click', () => {
+                scale = Math.min(scale * 1.25, 4);
+                updateTransform();
+                });
+            }
+
+            if (zoomOutBtn) {
+                zoomOutBtn.addEventListener('click', () => {
+                scale = Math.max(scale / 1.25, 0.3);
+                if (scale <= 1) {
+                    translateX = 0;
+                    translateY = 0;
+                }
+                updateTransform();
+                });
+            }
+
+            if (resetBtn) {
+                resetBtn.addEventListener('click', () => {
+                scale = 1;
+                translateX = 0;
+                translateY = 0;
+                updateTransform();
+                });
+            }
+
+            if (fullscreenBtn) {
+                fullscreenBtn.addEventListener('click', () => {
+                if (container.requestFullscreen) {
+                    container.requestFullscreen();
+                } else if (container.webkitRequestFullscreen) {
+                    container.webkitRequestFullscreen();
+                } else if (container.msRequestFullscreen) {
+                    container.msRequestFullscreen();
+                }
+                });
+            }
+
+            // Mouse Events
+            mermaidElement.addEventListener('mousedown', (e) => {
+                if (isTouch) return; // 如果是触摸设备，忽略鼠标事件
+
+                isDragging = true;
+                startX = e.clientX - translateX;
+                startY = e.clientY - translateY;
+                mermaidElement.style.cursor = 'grabbing';
+                updateTransform();
+                e.preventDefault();
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (isDragging && !isTouch) {
+                translateX = e.clientX - startX;
+                translateY = e.clientY - startY;
+                updateTransform();
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (isDragging && !isTouch) {
+                isDragging = false;
+                mermaidElement.style.cursor = 'grab';
+                updateTransform();
+                }
+            });
+
+            document.addEventListener('mouseleave', () => {
+                if (isDragging && !isTouch) {
+                isDragging = false;
+                mermaidElement.style.cursor = 'grab';
+                updateTransform();
+                }
+            });
+
+            // 获取两点之间的距离
+            function getTouchDistance(touch1, touch2) {
+                return Math.hypot(
+                touch2.clientX - touch1.clientX,
+                touch2.clientY - touch1.clientY
+                );
+            }
+
+            // Touch Events - 触摸事件处理
+            mermaidElement.addEventListener('touchstart', (e) => {
+                isTouch = true;
+                touchStartTime = Date.now();
+
+                if (e.touches.length === 1) {
+                // 单指拖动
+                isPinching = false;
+                isDragging = true;
+
+                const touch = e.touches[0];
+                startX = touch.clientX - translateX;
+                startY = touch.clientY - translateY;
+
+                } else if (e.touches.length === 2) {
+                // 双指缩放
+                isPinching = true;
+                isDragging = false;
+
+                const touch1 = e.touches[0];
+                const touch2 = e.touches[1];
+                initialDistance = getTouchDistance(touch1, touch2);
+                initialScale = scale;
+                }
+
+                e.preventDefault();
+            }, { passive: false });
+
+            mermaidElement.addEventListener('touchmove', (e) => {
+                if (e.touches.length === 1 && isDragging && !isPinching) {
+                // 单指拖动
+                const touch = e.touches[0];
+                translateX = touch.clientX - startX;
+                translateY = touch.clientY - startY;
+                updateTransform();
+
+                } else if (e.touches.length === 2 && isPinching) {
+                // 双指缩放
+                const touch1 = e.touches[0];
+                const touch2 = e.touches[1];
+                const currentDistance = getTouchDistance(touch1, touch2);
+
+                if (initialDistance > 0) {
+                    const newScale = Math.min(Math.max(
+                    initialScale * (currentDistance / initialDistance),
+                    0.3
+                    ), 4);
+                    scale = newScale;
+                    updateTransform();
+                }
+                }
+
+                e.preventDefault();
+            }, { passive: false });
+
+            mermaidElement.addEventListener('touchend', (e) => {
+                // 重置状态
+                if (e.touches.length === 0) {
+                isDragging = false;
+                isPinching = false;
+                initialDistance = 0;
+
+                // 延迟重置isTouch，避免鼠标事件立即触发
+                setTimeout(() => {
+                    isTouch = false;
+                }, 100);
+                } else if (e.touches.length === 1 && isPinching) {
+                // 从双指变为单指，切换为拖动模式
+                isPinching = false;
+                isDragging = true;
+
+                const touch = e.touches[0];
+                startX = touch.clientX - translateX;
+                startY = touch.clientY - translateY;
+                }
+
+                updateTransform();
+            });
+
+            mermaidElement.addEventListener('touchcancel', (e) => {
+                isDragging = false;
+                isPinching = false;
+                initialDistance = 0;
+
+                setTimeout(() => {
+                isTouch = false;
+                }, 100);
+
+                updateTransform();
+            });
+
+            // Enhanced wheel zoom with better center point handling
+            container.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const rect = container.getBoundingClientRect();
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+
+                const delta = e.deltaY > 0 ? 0.9 : 1.1;
+                const newScale = Math.min(Math.max(scale * delta, 0.3), 4);
+
+                // Adjust translation to zoom towards center
+                if (newScale !== scale) {
+                const scaleDiff = newScale / scale;
+                translateX = translateX * scaleDiff;
+                translateY = translateY * scaleDiff;
+                scale = newScale;
+
+                if (scale <= 1) {
+                    translateX = 0;
+                    translateY = 0;
+                }
+
+                updateTransform();
+                }
+            });
+
+            // Initialize display
+            updateTransform();
+            });
+        }
+
+        // Initialize mermaid controls after DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeMermaidControls();
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Highlight active section in TOC
+        const sections = document.querySelectorAll('section[id]');
+        const tocLinks = document.querySelectorAll('.toc-sidebar a[href^="#"]');
+
+        function highlightActiveSection() {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (window.scrollY >= sectionTop - 200) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            tocLinks.forEach(link => {
+                link.classList.remove('text-indigo-600', 'font-semibold');
+                link.classList.add('text-gray-600');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.remove('text-gray-600');
+                    link.classList.add('text-indigo-600', 'font-semibold');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', highlightActiveSection);
+        highlightActiveSection(); // Initial call
+    </script>
+  </body>
+
+</html>
